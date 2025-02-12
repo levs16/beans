@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= status %> · beans.</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <style>
+    .error-message {
+      text-align: center;
+      margin: 4rem auto;
+      max-width: 600px;
+    }
+    
+    .error-message h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+      color: var(--text-color);
+    }
+    
+    .error-message p {
+      color: var(--accent-color);
+      font-size: 1.1rem;
+      line-height: 1.8;
+    }
+
+    .error-code {
+      font-family: 'Space Grotesk', monospace;
+      opacity: 0.5;
+      font-size: 0.9rem;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/" class="logo">beans.</a>
+    <div class="nav-links">
+      <a href="/">home</a>
+      <a href="/about">about</a>
+      <a href="/login">login</a>
+    </div>
+    <button class="theme-toggle" id="theme-toggle">feeling shady?</button>
+    <div class="theme-notification" id="theme-notification"></div>
+  </nav>
+  
+  <div class="container">
+    <div class="error-message">
+      <h1><%= title %></h1>
+      <p><%= message %></p>
+      <div class="error-code"><%= status %></div>
+    </div>
+  </div>
+
+  <div class="visitor-count">visitors today: <%= visitorCount %></div>
+
+  <script>
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeNotification = document.getElementById('theme-notification');
+    const root = document.documentElement;
+    
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    root.setAttribute('data-theme', savedTheme);
+    updateToggleText();
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = root.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      
+      root.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateToggleText();
+    });
+
+    function updateToggleText() {
+      const phrases = {
+        light: 'feeling shady?',
+        dark: 'too dark to think?'
+      };
+      themeToggle.textContent = phrases[root.getAttribute('data-theme')];
+    }
+  </script>
+  <script src="/js/transitions.js"></script>
+</body>
+</html> 

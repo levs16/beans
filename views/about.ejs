@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>about · beans.</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <style>
+    .about-content {
+      max-width: 580px;
+      margin: 4rem auto;
+      line-height: 1.8;
+    }
+
+    .about-content h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
+      letter-spacing: -0.02em;
+      color: var(--text-color);
+    }
+
+    .about-content p {
+      color: var(--text-color);
+      font-size: 1.05rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .about-content .signature {
+      font-family: 'Space Grotesk', monospace;
+      color: var(--accent-color);
+      margin-top: 3rem;
+      font-size: 0.9rem;
+    }
+
+    .about-content .age {
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/" class="logo">beans.</a>
+    <div class="nav-links">
+      <a href="/">home</a>
+      <a href="/about" class="active">about</a>
+      <a href="/login">login</a>
+    </div>
+    <button class="theme-toggle" id="theme-toggle">feeling shady?</button>
+    <div class="theme-notification" id="theme-notification"></div>
+  </nav>
+  
+  <div class="container">
+    <div class="about-content">
+      <h1>hey there</h1>
+      <p>
+        this is beans — a quiet corner of the internet where thoughts can breathe. 
+        it's a place for sharing those little moments that float through our minds, 
+        the kind that usually drift away unspoken.
+      </p>
+      <p>
+        there's no likes, no comments, no notifications. just words finding their way 
+        from one mind to another. think of it as passing notes in the digital age, 
+        but with a bit more soul and a lot less noise.
+      </p>
+      <p>
+        why beans? well, why not? sometimes the simplest things carry the most meaning. 
+        like a warm cup of coffee on a quiet morning, or a random thought that makes 
+        you smile.
+      </p>
+      <div class="signature">
+        — lev <span class="age">(16 and counting)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="visitor-count">visitors today: <%= visitorCount %></div>
+
+  <script>
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeNotification = document.getElementById('theme-notification');
+    const root = document.documentElement;
+    
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const systemTheme = prefersDark.matches ? 'dark' : 'light';
+    
+    const savedTheme = localStorage.getItem('theme');
+    const currentTheme = savedTheme || systemTheme;
+    
+    root.setAttribute('data-theme', currentTheme);
+    updateToggleText();
+
+    prefersDark.addEventListener('change', (e) => {
+      if (!localStorage.getItem('theme')) {
+        const newTheme = e.matches ? 'dark' : 'light';
+        root.setAttribute('data-theme', newTheme);
+        updateToggleText();
+      }
+    });
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = root.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      
+      root.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateToggleText();
+    });
+
+    function updateToggleText() {
+      const phrases = {
+        light: 'feeling shady?',
+        dark: 'too dark to think?'
+      };
+      themeToggle.textContent = phrases[root.getAttribute('data-theme')];
+    }
+  </script>
+  <script src="/js/transitions.js"></script>
+</body>
+</html> 

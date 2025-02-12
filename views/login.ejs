@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login · beans.</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <style>
+    .login-message {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .login-message h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+      color: var(--text-color);
+    }
+    
+    .login-message p {
+      font-size: 1.1rem;
+      color: var(--accent-color);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/" class="logo">beans.</a>
+    <div class="nav-links">
+      <a href="/">home</a>
+      <a href="/about">about</a>
+      <a href="/login" class="active">login</a>
+    </div>
+    <button class="theme-toggle" id="theme-toggle">feeling shady?</button>
+    <div class="theme-notification" id="theme-notification"></div>
+  </nav>
+  
+  <div class="container">
+    <div class="login-message">
+      <h1>hello, friend</h1>
+      <p>
+        this is a quiet place for gentle thoughts. like a garden we tend together, 
+        it grows with care and respect. every visitor leaves footprints in our logs, 
+        so walk softly and carry good intentions.
+      </p>
+    </div>
+    <form class="login-form" action="/login" method="POST">
+      <div class="editor-form">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit" class="login-button">
+          <span class="button-text">Login</span>
+          <span class="button-loading" hidden>...</span>
+        </button>
+      </div>
+    </form>
+    <div class="apply-info">
+      <h3>wanna join?</h3>
+      <p>
+        if you'd like to share your thoughts here, reach out:
+        <br>
+        <a href="mailto:sokolovarkadii1960@gmail.com">sokolovarkadii1960@gmail.com</a>
+        <br>or<br>
+        <a href="https://t.me/cockcombustion">t.me/cockcombustion</a>
+      </p>
+      <p class="apply-note">
+        this is a quiet space for genuine thoughts. 
+        tell me a bit about yourself and why you'd like to write here.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeNotification = document.getElementById('theme-notification');
+    const root = document.documentElement;
+    
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const systemTheme = prefersDark.matches ? 'dark' : 'light';
+    
+    const savedTheme = localStorage.getItem('theme');
+    const currentTheme = savedTheme || systemTheme;
+    
+    root.setAttribute('data-theme', currentTheme);
+    updateToggleText();
+    
+    if (!savedTheme && window.location.pathname === '/') {
+      const messages = {
+        light: "looks like you're a sunshine person",
+        dark: "hello fellow creature of the night"
+      };
+      
+      themeNotification.textContent = messages[systemTheme];
+      setTimeout(() => {
+        themeNotification.classList.add('show');
+        setTimeout(() => {
+          themeNotification.classList.remove('show');
+        }, 4000);
+      }, 1000);
+    }
+    
+    prefersDark.addEventListener('change', (e) => {
+      if (!localStorage.getItem('theme')) {
+        const newTheme = e.matches ? 'dark' : 'light';
+        root.setAttribute('data-theme', newTheme);
+        updateToggleText();
+      }
+    });
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = root.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      
+      root.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateToggleText();
+    });
+
+    function updateToggleText() {
+      const phrases = {
+        light: 'feeling shady?',
+        dark: 'too dark to think?'
+      };
+      themeToggle.textContent = phrases[root.getAttribute('data-theme')];
+    }
+  </script>
+  <script src="/js/notifications.js"></script>
+  <script>
+    document.querySelector('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const button = e.target.querySelector('button');
+      const text = button.querySelector('.button-text');
+      const loading = button.querySelector('.button-loading');
+      
+      text.hidden = true;
+      loading.hidden = false;
+      button.disabled = true;
+
+      try {
+        const formData = new FormData(e.target);
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: formData.get('username'),
+            password: formData.get('password')
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Login failed');
+        }
+
+        if (response.redirected) {
+          window.location.href = response.url;
+        } else {
+          showNotification('Login successful!', 'success');
+        }
+      } catch (err) {
+        showNotification('Invalid username or password', 'error');
+        text.hidden = false;
+        loading.hidden = true;
+        button.disabled = false;
+      }
+    });
+  </script>
+  <script src="/js/transitions.js"></script>
+  <div class="visitor-count">visitors today: <%= visitorCount %></div>
+</body>
+</html> 

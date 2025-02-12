@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>New Post · beans.</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <script src="/js/notifications.js" defer></script>
+  <script src="/js/transitions.js" defer></script>
+  <style>
+    .editor-form {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .editor-form h2 {
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+      color: var(--text-color);
+    }
+
+    .editor-form textarea {
+      transition: all 0.3s ease;
+      min-height: 200px;
+      line-height: 1.8;
+      padding: 1.5rem;
+      background: var(--input-bg);
+    }
+
+    .editor-form textarea:focus {
+      min-height: 400px;
+      box-shadow: 0 4px 20px var(--shadow-color);
+    }
+
+    .editor-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: var(--accent-color);
+    }
+
+    .char-count {
+      transition: opacity 0.2s ease;
+    }
+
+    .editor-form textarea:focus + .editor-meta .char-count {
+      opacity: 0.7;
+    }
+
+    .publish-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .publish-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .publish-button:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/" class="logo">beans.</a>
+    <div class="nav-links">
+      <a href="/">home</a>
+      <a href="/about">about</a>
+      <a href="/logout">logout</a>
+    </div>
+    <button class="theme-toggle" id="theme-toggle">feeling shady?</button>
+    <div class="theme-notification" id="theme-notification"></div>
+  </nav>
+  
+  <div class="container">
+    <form class="editor-form" action="/post" method="POST">
+      <h2>write something nice</h2>
+      <input type="text" name="title" placeholder="give it a title..." required>
+      <textarea name="content" placeholder="and pour your thoughts here..." required></textarea>
+      <div class="editor-meta">
+        <div class="char-count">0 characters</div>
+        <button type="submit" class="publish-button">
+          <span>Share</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="visitor-count">visitors today: <%= visitorCount %></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const textarea = document.querySelector('textarea');
+      const charCount = document.querySelector('.char-count');
+      
+      textarea.addEventListener('input', () => {
+        const count = textarea.value.length;
+        charCount.textContent = `${count} character${count !== 1 ? 's' : ''}`;
+      });
+
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeNotification = document.getElementById('theme-notification');
+      const root = document.documentElement;
+      
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+      const systemTheme = prefersDark.matches ? 'dark' : 'light';
+      
+      const savedTheme = localStorage.getItem('theme');
+      const currentTheme = savedTheme || systemTheme;
+      
+      root.setAttribute('data-theme', currentTheme);
+      updateToggleText();
+      
+      if (!savedTheme && window.location.pathname === '/') {
+        const messages = {
+          light: "looks like you're a sunshine person",
+          dark: "hello fellow creature of the night"
+        };
+        
+        themeNotification.textContent = messages[systemTheme];
+        setTimeout(() => {
+          themeNotification.classList.add('show');
+          setTimeout(() => {
+            themeNotification.classList.remove('show');
+          }, 4000);
+        }, 1000);
+      }
+
+      prefersDark.addEventListener('change', (e) => {
+        if (!localStorage.getItem('theme')) {
+          const newTheme = e.matches ? 'dark' : 'light';
+          root.setAttribute('data-theme', newTheme);
+          updateToggleText();
+        }
+      });
+
+      themeToggle.addEventListener('click', () => {
+        const currentTheme = root.getAttribute('data-theme');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        
+        root.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateToggleText();
+      });
+
+      function updateToggleText() {
+        const phrases = {
+          light: 'feeling shady?',
+          dark: 'too dark to think?'
+        };
+        themeToggle.textContent = phrases[root.getAttribute('data-theme')];
+      }
+
+      document.querySelector('form').addEventListener('submit', (e) => {
+        const title = e.target.querySelector('input[name="title"]').value.trim();
+        const content = e.target.querySelector('textarea').value.trim();
+        
+        if (!title || !content) {
+          e.preventDefault();
+          showNotification('Please fill in both title and content', 'error');
+          return;
+        }
+        
+        showNotification('Publishing your thought...', 'success');
+      });
+    });
+  </script>
+</body>
+</html> 

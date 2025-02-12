@@ -1,0 +1,10 @@
+{
+  "dailyVisits": {
+    "date": "",
+    "count": 0,
+    "visitors": {
+      "sessions": [],
+      "ips": []
+    }
+  }
+}

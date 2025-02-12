@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>beans.</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav>
+    <a href="/" class="logo">beans.</a>
+    <div class="nav-links">
+      <a href="/" class="active">home</a>
+      <a href="/about">about</a>
+      <a href="/login">login</a>
+    </div>
+    <button class="theme-toggle" id="theme-toggle">feeling shady?</button>
+    <div class="theme-notification" id="theme-notification"></div>
+  </nav>
+  
+  <div class="container">
+    <% if (posts.length === 0) { %>
+      <div class="empty-state">
+        <p>No thoughts yet. Check back soon.</p>
+      </div>
+    <% } else { %>
+      <% posts.forEach(post => { %>
+        <article class="post">
+          <h2 class="post-title"><%= post.title %></h2>
+          <div class="post-meta">
+            <span class="post-author">by <%= post.author || 'anonymous' %></span>
+            <span class="post-date">
+              <%= new Date(post.date).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              }) %>
+            </span>
+          </div>
+          <div class="post-content"><%- post.content %></div>
+        </article>
+      <% }); %>
+    <% } %>
+  </div>
+
+  <script>
+    document.documentElement.style.scrollBehavior = 'smooth';
+    
+    document.querySelectorAll('.post-date').forEach(date => {
+      const timestamp = new Date(date.textContent);
+      if (timestamp.toString() !== 'Invalid Date') {
+        date.textContent = timestamp.toLocaleString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+    });
+
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeNotification = document.getElementById('theme-notification');
+    const root = document.documentElement;
+    
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const systemTheme = prefersDark.matches ? 'dark' : 'light';
+    
+    const savedTheme = localStorage.getItem('theme');
+    const currentTheme = savedTheme || systemTheme;
+    
+    root.setAttribute('data-theme', currentTheme);
+    updateToggleText();
+    
+    if (!savedTheme && window.location.pathname === '/') {
+      const messages = {
+        light: "looks like you're a sunshine person",
+        dark: "hello fellow creature of the night"
+      };
+      
+      themeNotification.textContent = messages[systemTheme];
+      setTimeout(() => {
+        themeNotification.classList.add('show');
+        setTimeout(() => {
+          themeNotification.classList.remove('show');
+        }, 4000);
+      }, 1000);
+    }
+
+    prefersDark.addEventListener('change', (e) => {
+      if (!localStorage.getItem('theme')) {
+        const newTheme = e.matches ? 'dark' : 'light';
+        root.setAttribute('data-theme', newTheme);
+        updateToggleText();
+      }
+    });
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = root.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      
+      root.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateToggleText();
+    });
+
+    function updateToggleText() {
+      const phrases = {
+        light: 'feeling shady?',
+        dark: 'too dark to think?'
+      };
+      themeToggle.textContent = phrases[root.getAttribute('data-theme')];
+    }
+  </script>
+  <script src="/js/transitions.js"></script>
+  <div class="visitor-count">visitors today: <%= visitorCount %></div>
+</body>
+</html> 
