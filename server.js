@@ -5,6 +5,8 @@ const path = require('path');
 const FileStore = require('session-file-store')(session);
 const app = express();
 const crypto = require('crypto');
+const http = require('http');
+const https = require('https');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -232,7 +234,19 @@ app.use((req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-}); 
+const httpPort = 80;
+const httpsPort = 443;
+
+const httpServer = http.createServer(app);
+httpServer.listen(httpPort, () => {
+  console.log(`HTTP Server running on port ${httpPort}`);
+});
+
+// Optionally, for HTTPS (you'll need SSL certificates)
+// const httpsServer = https.createServer({
+//   key: fs.readFileSync('/path/to/key.pem'),
+//   cert: fs.readFileSync('/path/to/cert.pem')
+// }, app);
+// httpsServer.listen(httpsPort, () => {
+//   console.log(`HTTPS Server running on port ${httpsPort}`);
+// }); 
